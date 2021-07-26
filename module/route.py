@@ -3,7 +3,7 @@ import requests
 # import pandas as pd
 
 def get_json(start,goal):
-    headers = {'X-NCP-APIGW-API-KEY-ID': 'fau64bbv6v','X-NCP-APIGW-API-KEY':'mSF1qIX7C1medFNmQzRoy9qWaLgrcbYfn3uk8NTS'} 
+    headers = {'X-NCP-APIGW-API-KEY-ID': '-------------','X-NCP-APIGW-API-KEY':'-------------'} 
     req = requests.get('https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?start='+start+'&goal='+goal+'&option=trafast', headers=headers) 
     req_js = req.json()
     return req_js
