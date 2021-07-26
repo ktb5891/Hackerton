@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>WITH</title>
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=edki24oqpu"></script>
+</head>
+<body>
+    <div id="map" style="width:100%;height:960px;"></div>
+    <script>
+        var MARKER_SPRITE_POSITION = [];
+    </script>
+
+    {% for i in station_list %}
+    <!-- <div> {{i[0]}} </div> -->
+    <script>
+        var m = "{{i[0]}}";
+        var lat = "{{i[1]}}";
+        var long = "{{i[2]}}";
+        var point = [lat,long];
+        MARKER_SPRITE_POSITION.push(point);
+    </script>
+    {% endfor %}
+
+    <!-- <script>
+        document.write(MARKER_SPRITE_POSITION);
+    </script> -->
+    <script>     
+        var myLatlng = new naver.maps.LatLng(37.189599, 127.0558025);
+        
+        var mapOptions = {
+            zoom: 11,
+            center: myLatlng
+        };
+        
+        var map = new naver.maps.Map(document.getElementById('map'), mapOptions);
+        
+        
+        
+        var markers = [], marker, position;
+        
+        for (var key in MARKER_SPRITE_POSITION) {
+        
+            position = new naver.maps.LatLng(
+                MARKER_SPRITE_POSITION[key][0],
+                MARKER_SPRITE_POSITION[key][1]);
+        
+            marker = new naver.maps.Marker({
+                map: map,
+                position: position,
+                title: key
+                
+            });
+        };
+        var contentString = [
+        '<div class="iw_inner">',
+        '   <h3>서울특별시청</h3>',
+        '   <p>서울특별시 중구 태평로1가 31 | 서울특별시 중구 세종대로 110 서울특별시청<br />',
+        '       <img src="'+ HOME_PATH +'/img/example/hi-seoul.jpg" width="55" height="55" alt="서울시청" class="thumb" /><br />',
+        '       02-120 | 공공,사회기관 &gt; 특별,광역시청<br />',
+        '       <a href="http://www.seoul.go.kr" target="_blank">www.seoul.go.kr/</a>',
+        '   </p>',
+        '</div>'
+        ].join('');
+
+        var infowindow = new naver.maps.InfoWindow({
+            content: contentString
+        });
+
+        naver.maps.Event.addListener(marker, "click", function(e) {
+            if (infowindow.getMap()) {
+                infowindow.close();
+            } else {
+                infowindow.open(map, marker);
+            }
+        });
+
+        infowindow.open(map, marker);
+    </script>
+
+</body>
+</html>

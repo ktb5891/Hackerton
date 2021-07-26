@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>WITH(Where Is The H2)</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Song+Myung&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=fau64bbv6v&submodules=geocoder"></script>
+</head>
+<body style="margin: 0 0 0 0;">
+
+<div id="map" style="width:80%;height:960px; float: right;">
+    
+    
+
+
+<script>
+    var path = [];
+    var MARKER_SPRITE_POSITION = [];
+    var name_list = [];
+    var startpoint_lat = "{{startpoint[0]}}";
+    var startpoint_lng = "{{startpoint[1]}}";
+</script>
+{% for i in path_list %}
+<script>
+var lat = "{{i[1]}}";
+lat *= 1;
+var long = "{{i[0]}}";
+long *= 1;
+var point = new naver.maps.LatLng(lat,long);
+path.push(point);
+</script>
+{% endfor %}
+
+{% for i in station_list %}
+    <!-- <div> {{i[0]}} </div> -->
+    <script>
+        var m = "{{i[0]}}";
+        var lat = "{{i[1]}}";
+        var long = "{{i[2]}}";
+        var point = [lat,long];
+        MARKER_SPRITE_POSITION.push(point);
+        name_list.push(m);
+    </script>
+{% endfor %}
+
+<script> 
+    var map = new naver.maps.Map("map", {
+        center: new naver.maps.LatLng(startpoint_lat*1, startpoint_lng*1),
+        zoom: 15
+    }),
+    infoWindow = null;
+
+    var polyline = new naver.maps.Polyline({
+        map: map,
+        path: path,
+        strokeColor: 'cyan',
+        strokeWeight: 10
+    });
+
+    var markers = [], marker, position;
+    var count = 0;
+    
+        for (var key in MARKER_SPRITE_POSITION) {
+            count ++;
+            if(count < 60){
+            position = new naver.maps.LatLng(
+                MARKER_SPRITE_POSITION[key][0],
+                MARKER_SPRITE_POSITION[key][1]);
+        
+            marker = new naver.maps.Marker({
+                map: map,
+                position: position,
+                title: name_list[key]
+            })}
+            else{
+                position = new naver.maps.LatLng(
+                MARKER_SPRITE_POSITION[key][0],
+                MARKER_SPRITE_POSITION[key][1]);
+        
+            marker = new naver.maps.Marker({
+                map: map,
+                position: position,
+                title: name_list[key],
+                icon: {
+            content: '<img src="https://raw.githubusercontent.com/ktb5891/Hackerton/main/sample.ico" alt="" ' +
+                'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none; ' +
+                '-webkit-user-select: none; position: absolute; width: 30px; height: 30px; left: 0px; top: 0px;">',
+            size: new naver.maps.Size(22, 35)
+            }
+            })
+        }
+        };
+    
+        var startMarker = new naver.maps.Marker({
+            map:map,
+            position: new naver.maps.LatLng(startpoint_lat*1, startpoint_lng*1),
+            title: "Startpoint",
+            icon: {
+            content: '<img src="https://github.com/ktb5891/Hackerton/blob/main/Apeach.png?raw=true" alt="" ' +
+                'style="margin: 0px; padding: 0px; border: 0px solid transparent; display: block; max-width: none; max-height: none; ' +
+                '-webkit-user-select: none; position: absolute; width: 95px; height: 100px; left: 0px; top: 0px;">',
+            size: new naver.maps.Size(22, 35),
+            anchor: new naver.maps.Point(60,80)
+            },
+            animation:naver.maps.Animation.BOUNCE
+            });
+
+        
+    
+
+    function initGeocoder() {
+    if (!map.isStyleMapReady) {
+        return;
+    }
+
+    var latlng = map.getCenter();
+
+    infoWindow = new naver.maps.InfoWindow({
+        content: ''
+    });
+
+    map.addListener('click', function(e) {
+        var latlng = e.coord;
+        
+        infoWindow.setContent([
+            // '<div style="padding:10px;width:380px;font-size:14px;line-height:20px;">',
+            '<strong>위도, 경도</strong> : '+ latlng +'<br />',
+            // '</div>',
+            '<span style="display : inline-block; float : center">',
+            '<form action="/select" class="form-inline text-center" style="justify-content: center; float : center;" method="POST">',
+            '<button id=startpoint name=startpoint class = "btn btn-primary" type="submit" style="width:100%; background-color: primary; border-color: primary;" value=' + latlng + ' >출발지</button>',
+            '</form>',
+            '</span>'
+        ].join(''));
+
+        infoWindow.open(map, latlng);
+        console.log('LatLng: ' + latlng.toString());
+    });
+}
+
+naver.maps.onJSContentLoaded = initGeocoder;
+naver.maps.Event.once(map, 'init_stylemap', initGeocoder);
+
+var startpoints = [startpoint_lat,startpoint_lng]
+
+
+</script>
+<div style="position: relative; z-index: 2; display: table-cell; vertical-align: middle; width: 20%; float: right;">
+    <center>
+        <span>
+            <div>
+            {% if startpoint %}
+            <form action="/select" class="form-inline text-center" style="justify-content: center; float : left;" method="POST"><br>
+            <button id='startpoint' name='startpoint' class = "btn btn-primary" type="submit" style="width:100%; background-color: primary; border-color: primary;"value='{{startpoint}}' > 기존 충전소만 경로 탐색 </button>
+            </form>
+            
+            <form action="/select2" class="form-inline text-center" style="justify-content: center; float : left;" method="POST"><br>
+            <button id='startpoint' name='startpoint' class = "btn btn-primary" type="submit" style="width:100%; background-color: primary; border-color: primary;"value='{{startpoint}}' > 수익 보장 지역 충전소 고려 경로 탐색 </button>
+            </form>
+            
+            <form action="/select3" class="form-inline text-center" style="justify-content: center; float : left;" method="POST"><br>
+            <button id="startpoint" name="startpoint" class = "btn btn-primary" type="submit" style="width:100%; background-color: primary; border-color: primary;"value='{{startpoint}}'  > 소외 지역 충전소 고려 경로 탐색 </button>
+            </form>
+            {% endif %}
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            
+            
+                
+            <img src="https://github.com/ktb5891/Hackerton/blob/main/cost_time.png?raw=true" alt="" style="width: 250px; float: left;">
+            </div>
+        </span>    
+    </center>
+    </div>
+
+</div>
+
+<div style="width:20%; height:960px; float: left; font-family: 'Do Hyeon', sans-serif; color:rgb(88, 90, 88)">
+    
+    <div style="background-color:rgb(247, 227, 229); width:100%; height: 960px;">
+    <center>
+        <br>
+    <a href="/"><img src="https://github.com/ktb5891/Hackerton/blob/main/with_logo.png?raw=true" width="100%;"></a>
+    </center>
+    <br>
+    <br>
+    <h1> 출발지 </h1>
+    <h3> <span style="color: rgb(159, 173, 165); text-align: center;">{{startpoint_addr}}</span> </h3>
+    <br>
+    <h1> 도착지 </h1>
+    <h3> <span style="color: rgb(159, 173, 165); text-align: center;">{{endpoint_addr}}</span> </h3>
+    <br>
+    <br>
+    <h1> 거리 </h1>
+    <center>
+    <h1> <span style="color: rgb(92, 116, 113); font-size: 70px; text-align: center;">{{route_distance}}KM</span> </h1>
+    </center>
+    <h1> 소요시간 </h1>
+    <center>
+    <h1> <span style="color: rgb(92, 116, 113); font-size: 70px; text-align: center;">{{route_time}}분</span></h1>
+    </center>
+</div>
+</div>
+</body>
+</html>
